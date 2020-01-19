@@ -1,4 +1,4 @@
-package com.kalachinski.tickets;
+package com.kalachinski.tickets.controllers;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class GreetingRestController {
 
-    @GetMapping("/hello")
+    @GetMapping("/")
     public String greeting() {
-        return "Hello, user";
+        return "Hello, guest";
     }
 }
