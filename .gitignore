@@ -10,6 +10,7 @@ gradlew.bat
 #package
 .gradle/
 .idea/
+build/
 out/
 gradle/
 classes/
