@@ -34,8 +34,4 @@ public class Ticket {
     @Enumerated(EnumType.STRING)
     @Column(name = "Ticket.status")
     private TicketStatus ticketStatus;
-
-    public Long getId() {
-        return id;
-    }
 }

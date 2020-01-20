@@ -34,8 +34,4 @@ public class Location {
     @OneToMany
     @Column(name = "Ticket.id")
     private List<Ticket> tickets;
-
-    public Long getId() {
-        return id;
-    }
 }

@@ -30,8 +30,4 @@ public class Event {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Location.id")
     private Location location;
-
-    public Long getId() {
-        return id;
-    }
 }
