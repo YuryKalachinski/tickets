@@ -32,7 +32,7 @@ public class User {
     private String password;
 
     @Transient
-    transient private String confirmPassword;
+    private String confirmPassword;
 
     @Column(name = "firstName")
     private String firstName;
