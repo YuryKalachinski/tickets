@@ -15,9 +15,12 @@ import java.util.Optional;
 @RestController
 @RequestMapping(value = "/event")
 public class EventRestController {
+    private final EventService eventService;
 
     @Autowired
-    private EventService eventService;
+    EventRestController(EventService eventService) {
+        this.eventService = eventService;
+    }
 
     @GetMapping("{id}")
     public ResponseEntity<Event> getOneEvent(@PathVariable("id") Long id) {

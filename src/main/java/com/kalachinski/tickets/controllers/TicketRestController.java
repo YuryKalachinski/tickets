@@ -15,9 +15,12 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/ticket")
 public class TicketRestController {
+    private final TicketService ticketService;
 
     @Autowired
-    private TicketService ticketService;
+    public TicketRestController(TicketService ticketService) {
+        this.ticketService = ticketService;
+    }
 
     @GetMapping("{id}")
     public ResponseEntity<Ticket> getOneTicket(@PathVariable("id") Long id) {

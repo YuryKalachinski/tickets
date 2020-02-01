@@ -47,6 +47,7 @@ create table user_role (
 
 create table usr (
     id int8 not null,
+    creation_date timestamp,
     first_name varchar(255),
     last_name varchar(255),
     login varchar(255),

@@ -13,7 +13,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping(value = "/location")
 public class LocationRestController {
-    private LocationService locationService;
+    private final LocationService locationService;
 
     @Autowired
     public LocationRestController(LocationService locationService) {

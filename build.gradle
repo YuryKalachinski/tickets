@@ -22,25 +22,35 @@ repositories {
 }
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-devtools:2.2.2.RELEASE")
-    compile("org.springframework.boot:spring-boot-starter-web:2.2.2.RELEASE")
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools
+    compile group: 'org.springframework.boot', name: 'spring-boot-devtools', version: '2.2.4.RELEASE'
+
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.2.4.RELEASE'
+
+
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf', version: '2.2.4.RELEASE'
 
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa
-    compile("org.springframework.boot:spring-boot-starter-data-jpa:2.2.2.RELEASE")
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.2.4.RELEASE'
 
     // https://mvnrepository.com/artifact/org.postgresql/postgresql
-    compile("org.postgresql:postgresql:42.2.8")
+    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.9'
 
-    compileOnly("org.projectlombok:lombok:1.18.10")
-    annotationProcessor("org.projectlombok:lombok:1.18.10")
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
 
     // https://mvnrepository.com/artifact/org.flywaydb/flyway-core
-    compile("org.flywaydb:flyway-core:6.1.4")
+    compile group: 'org.flywaydb', name: 'flyway-core', version: '6.2.1'
 
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.2.3.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.2.4.RELEASE'
 
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.2.4.RELEASE'
 
-    testCompile("org.springframework.boot:spring-boot-starter-test")
-    testCompile("org.junit.jupiter:junit-jupiter-api:5.4.0")
+    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.0'
+
 }
