@@ -20,8 +20,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/user")
 public class UserRestController {
-    private UserService userService;
-    private PasswordEncoder passwordEncoder;
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserRestController(UserService userService, PasswordEncoder passwordEncoder) {
@@ -30,7 +30,7 @@ public class UserRestController {
     }
 
     @GetMapping
-    @JsonView(Views.IdName.class)
+    @JsonView(Views.FullViews.class)
     public ResponseEntity<List<User>> getAllUsers() {
         return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
     }
@@ -85,12 +85,14 @@ public class UserRestController {
         if (userFromDb.isPresent()
                 && Optional.ofNullable(user).isPresent()
                 && id.equals(user.getId())
-//                && userFromDb.get().getLogin().equals(user.getLogin())
+                && userFromDb.get().getLogin().equals(user.getLogin())
                 ) {
             userFromDb.get().setLogin(user.getLogin());
             userFromDb.get().setFirstName(user.getFirstName());
             userFromDb.get().setLastName(user.getLastName());
             userFromDb.get().setPassword(passwordEncoder.encode(user.getPassword()));
+            userFromDb.get().setRoles(user.getRoles());
+            userFromDb.get().setState(user.getState());
             return new ResponseEntity<>(userService.saveUser(userFromDb.get()), HttpStatus.ACCEPTED);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

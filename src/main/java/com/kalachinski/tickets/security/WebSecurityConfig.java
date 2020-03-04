@@ -28,18 +28,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //                    .antMatchers(USER_ENDPOINT).hasAnyAuthority("ADMIN", "USER")
 //                    .antMatchers(ADMIN_ENDPOINT).hasAuthority("ADMIN")
 //                    .antMatchers(NON_REGISTERED_ENDPOINT).permitAll()
-                    .antMatchers("/","/login**","/js/**","/error**", "helloPage").permitAll()
-//                    .anyRequest().authenticated()
+                    .antMatchers("/","/login**","/registry","/registration","/js/**","/error**").permitAll()
+                    .anyRequest().authenticated()
                 .and()
                     .formLogin()
                     .permitAll()
                 .and()
-//                    .logout()
-//                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-//                    .logoutSuccessUrl("/")
-//                    .permitAll()
-//                .and()
-                .csrf().disable();
+                    .logout()
+                    .logoutSuccessUrl("/")
+                    .permitAll()
+                .and()
+                    .csrf().disable();
     }
 
     @Override

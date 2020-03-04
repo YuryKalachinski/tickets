@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @ToString(of = {"id", "login", "firstName", "lastName"})
 @EqualsAndHashCode(of = {"id", "login"})
-public class User {
+public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

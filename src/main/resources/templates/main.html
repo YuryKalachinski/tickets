@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
+<head>
+    <title>Tickets</title>
+    <meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+
+    <script th:inline="javascript">
+        var frontEndData = [[${frontEndData}]];
+    </script>
+</head>
+<body>
+<div id="app">
+    <v-app>
+        <v-app-bar app>
+            <v-toolbar-title>TicketsPro</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <span v-if="profile"> {{ profile.username }}: </span>
+            <v-btn v-if="profile" icon href="/logout">
+                <v-icon>exit_to_app</v-icon>
+            </v-btn>
+            <span v-if="!profile"> Необходимо пройти
+                <a href="/login">авторизацию</a>
+                или
+                <a href="/registration">зарегистрироваться</a>.
+            </span>
+            <template v-slot:extension >
+                <v-tabs align-with-title v-if="profile">
+                    <v-tab><router-link to="/" style="text-decoration:none">
+                        Home</router-link></v-tab>
+                    <v-tab v-if="isAdmin(profile)"><router-link to="/person" style="text-decoration:none">
+                        User</router-link></v-tab>
+                    <v-tab><router-link to="/location" style="text-decoration:none">
+                        Location</router-link></v-tab>
+                    <v-tab><router-link to="/ticket" style="text-decoration:none">
+                        Ticket</router-link></v-tab>
+                    <v-tab><router-link to="/event" style="text-decoration:none">
+                        Event</router-link></v-tab>
+                </v-tabs>
+            </template>
+        </v-app-bar>
+        <v-content>
+            <router-view></router-view>
+        </v-content>
+
+    </v-app>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+<script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>
