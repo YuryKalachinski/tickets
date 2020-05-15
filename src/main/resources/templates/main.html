@@ -31,14 +31,14 @@
                 <v-tabs align-with-title v-if="profile">
                     <v-tab><router-link to="/" style="text-decoration:none">
                         Home</router-link></v-tab>
-                    <v-tab v-if="isAdmin(profile)"><router-link to="/person" style="text-decoration:none">
-                        User</router-link></v-tab>
-                    <v-tab><router-link to="/location" style="text-decoration:none">
-                        Location</router-link></v-tab>
-                    <v-tab><router-link to="/ticket" style="text-decoration:none">
-                        Ticket</router-link></v-tab>
-                    <v-tab><router-link to="/event" style="text-decoration:none">
-                        Event</router-link></v-tab>
+                    <v-tab v-if="isAdmin()"><router-link to="/person" style="text-decoration:none">
+                        Users</router-link></v-tab>
+                    <v-tab><router-link to="/place" style="text-decoration:none">
+                        Places</router-link></v-tab>
+                    <v-tab><router-link to="/show" style="text-decoration:none">
+                        Events</router-link></v-tab>
+                    <v-tab><router-link to="/profile" style="text-decoration:none">
+                        Profile</router-link></v-tab>
                 </v-tabs>
             </template>
         </v-app-bar>

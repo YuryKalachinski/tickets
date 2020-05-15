@@ -3,14 +3,19 @@ package com.kalachinski.tickets.services;
 import com.kalachinski.tickets.domains.Ticket;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface TicketService {
-    Optional<Ticket> getTicketById(Long id);
+    Ticket getTicketById(Long id);
 
-    Ticket saveTicket(Ticket ticket);
+    Iterable<Ticket> saveGroupTickets(List<Ticket> tickets);
+
+    void updateTicket(Ticket ticket, Long id);
 
     void deleteTicket(Long id);
 
-    List<Ticket> getAllTickets();
+    Iterable<Ticket> getAllTickets();
+
+    List<Ticket> getTicketsByEventId(Long eventId);
+
+    List<Ticket> getTicketsByUserId(Long userId);
 }

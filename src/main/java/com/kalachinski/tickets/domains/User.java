@@ -1,6 +1,7 @@
 package com.kalachinski.tickets.domains;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 
@@ -9,18 +10,19 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
+@Entity(name = "User")
 @Table(name = "usr")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(of = {"id", "login", "firstName", "lastName"})
-@EqualsAndHashCode(of = {"id", "login"})
+@ToString(of = {"id", "login", "firstName", "lastName", "state", "roles"})
+@EqualsAndHashCode(of = {"id"})
 public class User implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_gen_user")
+    @SequenceGenerator(name = "seq_gen_user", sequenceName = "seq_user", allocationSize = 1)
     @JsonView(Views.Id.class)
     private Long id;
 
@@ -58,4 +60,9 @@ public class User implements Serializable {
     @Enumerated(EnumType.STRING)
     @JsonView(Views.FullViews.class)
     private State state;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @Column(name = "ticket.id")
+    @JsonIgnore
+    private List<Ticket> tickets;
 }

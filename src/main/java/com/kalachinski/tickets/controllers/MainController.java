@@ -1,6 +1,7 @@
 package com.kalachinski.tickets.controllers;
 
-import com.kalachinski.tickets.services.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -14,18 +15,14 @@ import java.util.HashMap;
 @RequestMapping("/")
 public class MainController {
 
-    private final UserService userService;
-
-    public MainController(UserService userService) {
-        this.userService = userService;
-    }
+    Logger log = LoggerFactory.getLogger(MainController.class);
 
     @GetMapping
     public String main(Model model, @AuthenticationPrincipal UserDetails user) {
         HashMap<Object, Object> data = new HashMap<>();
         if (user != null) {
+            log.info("Authorization in application with login: {}", user.getUsername());
             data.put("profile", user);
-            data.put("users", userService.getAllUsers());
         }
         model.addAttribute("frontEndData", data);
         return "main";

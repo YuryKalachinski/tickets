@@ -1,37 +1,44 @@
 package com.kalachinski.tickets.domains;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
-@Entity
-@Table(name = "locations")
+@Entity(name = "Location")
+@Table(name = "location")
 @Data
-public class Location {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString(of = {"id", "name", "numberOfPlace", "numberOfRow"})
+@EqualsAndHashCode(of = {"id"})
+public class Location implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_gen_location")
+    @SequenceGenerator(name = "seq_gen_location", sequenceName = "seq_location", allocationSize = 1)
     @Column(name = "id", nullable = false)
     private Long id;
 
     @Column(name = "name")
     private String name;
 
-    @Column(name = "quantityPlace")
-    private Integer quantityPlace;
+    @Column(name = "numberOfPlace")
+    private Integer numberOfPlace;
 
-    @Column(name = "quantityRow")
-    private Integer quantityRow;
+    @Column(name = "numberOfRow")
+    private Integer numberOfRow;
 
-    @Column(name = "quantitySector")
-    private Integer quantitySector;
-
-    @OneToMany
-    @Column(name = "Event.id")
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
+    @Column(name = "event.id")
+    @JsonIgnore
     private List<Event> events;
 
-    @OneToMany
-    @Column(name = "Ticket.id")
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
+    @Column(name = "ticket.id")
+    @JsonIgnore
     private List<Ticket> tickets;
 }

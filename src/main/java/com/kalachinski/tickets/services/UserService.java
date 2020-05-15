@@ -2,17 +2,20 @@ package com.kalachinski.tickets.services;
 
 import com.kalachinski.tickets.domains.User;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
+    Iterable<User> getAllUsers();
+
+    User getUserById(Long id);
+
     User saveUser(User user);
+
+    User registrationUser(User user);
+
+    void updateUser(User user, Long id);
 
     void deleteUserById(Long id);
 
-    Optional<User> getUserById(Long id);
-
-    Optional<User> getUserByUsername(String username);
-
-    List<User> getAllUsers();
+    Optional<User> getUserByLogin(String login);
 }

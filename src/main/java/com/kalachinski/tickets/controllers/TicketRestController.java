@@ -1,20 +1,22 @@
 package com.kalachinski.tickets.controllers;
 
 import com.kalachinski.tickets.domains.Ticket;
-import com.kalachinski.tickets.exceptions.BadRequestException;
-import com.kalachinski.tickets.exceptions.NotFoundException;
 import com.kalachinski.tickets.services.TicketService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/ticket")
 public class TicketRestController {
+
+    private static final Logger log = LoggerFactory.getLogger(TicketRestController.class);
+
     private final TicketService ticketService;
 
     @Autowired
@@ -22,39 +24,49 @@ public class TicketRestController {
         this.ticketService = ticketService;
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<Ticket> getOneTicket(@PathVariable("id") Long id) {
-        return new ResponseEntity<>(ticketService.getTicketById(id).orElseThrow(NotFoundException::new), HttpStatus.OK);
-    }
-
     @GetMapping
-    public ResponseEntity<List<Ticket>> getAllTickets() {
+    public ResponseEntity<Iterable<Ticket>> getAllTickets() {
+        log.info("Get all Tickets");
         return new ResponseEntity<>(ticketService.getAllTickets(), HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Ticket> getTicket(@PathVariable("id") Long id) {
+        log.info("Get Ticket by id: {}", id);
+        return new ResponseEntity<>(ticketService.getTicketById(id), HttpStatus.OK);
+    }
+
+    @GetMapping(params = "eventId")
+    public ResponseEntity<List<Ticket>> getTicketsByEventId(@RequestParam Long eventId) {
+        log.info("Get all Tickets with Event id: {}", eventId);
+        return new ResponseEntity<>(ticketService.getTicketsByEventId(eventId), HttpStatus.OK);
+    }
+
+    @GetMapping(params = "userId")
+    public ResponseEntity<List<Ticket>> getTicketsByUserId(@RequestParam Long userId) {
+        log.info("Get all Tickets with User id: {}", userId);
+        return new ResponseEntity<>(ticketService.getTicketsByUserId(userId), HttpStatus.OK);
+    }
+
     @PostMapping
-    public ResponseEntity<Ticket> saveTicket(@RequestBody Ticket ticket) {
-        Optional.ofNullable(ticket).orElseThrow(BadRequestException::new);
-        if (ticketService.getTicketById(ticket.getId()).isPresent()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Iterable<Ticket>> saveGroupTickets(@RequestBody List<Ticket> tickets) {
+        for (Ticket ticket : tickets) {
+            log.info("Save Ticket: {}", ticket.toString());
         }
-        return new ResponseEntity<>(ticketService.saveTicket(ticket), HttpStatus.OK);
+        return new ResponseEntity<>(ticketService.saveGroupTickets(tickets), HttpStatus.CREATED);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Ticket> updateTicket(@RequestBody Ticket ticket, @PathVariable("id") Long id) {
-        ticketService.getTicketById(id).orElseThrow(NotFoundException::new);
-        Optional.ofNullable(ticket).orElseThrow(BadRequestException::new);
-        if (!id.equals(ticket.getId())) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(ticketService.saveTicket(ticket), HttpStatus.OK);
+        log.info("Update Ticket with id: {} with next body: {}", id, ticket.toString());
+        ticketService.updateTicket(ticket, id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Ticket> deleteTicket(@PathVariable("id") Long id) {
-        ticketService.getTicketById(id).orElseThrow(NotFoundException::new);
+        log.info("Delete Ticket by id: {}", id);
         ticketService.deleteTicket(id);
-        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

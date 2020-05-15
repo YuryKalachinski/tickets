@@ -1,17 +1,18 @@
-package com.kalachinski.tickets.security.details;
+package com.kalachinski.tickets.domains;
 
-import com.kalachinski.tickets.domains.State;
-import com.kalachinski.tickets.domains.User;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 
+@NoArgsConstructor
 public class UserDetailsImpl implements UserDetails {
 
     private User user;
 
-    UserDetailsImpl(User user) {
+    public UserDetailsImpl(User user) {
         this.user = user;
     }
 
@@ -48,5 +49,25 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public boolean isEnabled() {
         return user.getState().equals(State.ACTIVE);
+    }
+
+    public Long getId() {
+        return user.getId();
+    }
+
+    public LocalDateTime getCreationDate() {
+        return user.getCreationDate();
+    }
+
+    public String getFirstName() {
+        return user.getFirstName();
+    }
+
+    public String getLastName() {
+        return user.getLastName();
+    }
+
+    public State getState() {
+        return user.getState();
     }
 }

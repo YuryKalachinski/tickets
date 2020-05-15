@@ -1,6 +1,7 @@
-package com.kalachinski.tickets.security;
+package com.kalachinski.tickets.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
+@ComponentScan
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -21,17 +23,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private static final String[] ADMIN_ENDPOINT = {"/user**"};
+    private static final String[] NON_REGISTERED_ENDPOINT = {
+            "/","/login**","/registry","/registration","/js/**","/error**"
+    };
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-//                    .antMatchers(USER_ENDPOINT).hasAnyAuthority("ADMIN", "USER")
-//                    .antMatchers(ADMIN_ENDPOINT).hasAuthority("ADMIN")
-//                    .antMatchers(NON_REGISTERED_ENDPOINT).permitAll()
-                    .antMatchers("/","/login**","/registry","/registration","/js/**","/error**").permitAll()
+                    .antMatchers(ADMIN_ENDPOINT).hasAuthority("ADMIN")
+                    .antMatchers(NON_REGISTERED_ENDPOINT).permitAll()
                     .anyRequest().authenticated()
                 .and()
                     .formLogin()
+//                    .failureUrl("/login")
                     .permitAll()
                 .and()
                     .logout()
