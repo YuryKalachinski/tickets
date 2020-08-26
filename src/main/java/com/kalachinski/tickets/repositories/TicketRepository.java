@@ -14,4 +14,6 @@ public interface TicketRepository extends CrudRepository<Ticket, Long> {
     List<Ticket> findByEvent(Event event);
 
     List<Ticket> findByUser(User user);
+
+    List<Ticket> findAll();
 }

@@ -13,7 +13,7 @@ public interface EventService {
 
     void deleteEvent(Long id);
 
-    Iterable<Event> getAllEvents();
+    List<Event> getAllEvents();
 
     List<Event> getEventsByLocationId(Long locationId);
 }

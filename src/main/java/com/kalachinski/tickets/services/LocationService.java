@@ -2,10 +2,12 @@ package com.kalachinski.tickets.services;
 
 import com.kalachinski.tickets.domains.Location;
 
+import java.util.List;
+
 public interface LocationService {
     Location getLocationById(Long id);
 
-    Iterable<Location> getAllLocations();
+    List<Location> getAllLocations();
 
     Location saveLocation(Location location);
 

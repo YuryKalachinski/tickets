@@ -2,10 +2,10 @@ package com.kalachinski.tickets.services;
 
 import com.kalachinski.tickets.domains.User;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface UserService {
-    Iterable<User> getAllUsers();
+    List<User> getAllUsers();
 
     User getUserById(Long id);
 
@@ -17,5 +17,5 @@ public interface UserService {
 
     void deleteUserById(Long id);
 
-    Optional<User> getUserByLogin(String login);
+    User getUserByLogin(String login);
 }

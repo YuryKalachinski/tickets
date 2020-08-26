@@ -1,4 +1,5 @@
 TRUNCATE location RESTART IDENTITY CASCADE;
+TRUNCATE event RESTART IDENTITY CASCADE;
 
 INSERT INTO location (id, name, number_of_place, number_of_row)
     VALUES (1, 'Minsk-Arena', 20, 10);

@@ -4,7 +4,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 
 @NoArgsConstructor
@@ -49,25 +48,5 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public boolean isEnabled() {
         return user.getState().equals(State.ACTIVE);
-    }
-
-    public Long getId() {
-        return user.getId();
-    }
-
-    public LocalDateTime getCreationDate() {
-        return user.getCreationDate();
-    }
-
-    public String getFirstName() {
-        return user.getFirstName();
-    }
-
-    public String getLastName() {
-        return user.getLastName();
-    }
-
-    public State getState() {
-        return user.getState();
     }
 }

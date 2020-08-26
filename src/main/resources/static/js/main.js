@@ -1,13 +1,12 @@
 function isAdmin() {
-    for (var i=0; i<frontEndData.profile.authorities.length; i++ ) {
-        if (frontEndData.profile.authorities[i] == "ADMIN") {
-            return true;
-        }
+    if (frontEndData.profile.authorities.includes('ADMIN')) {
+        return true;
     }
-    return false;
 }
 
-const registrationApi =  Vue.resource('/registry');
+const authUserApi = Vue.resource('/auth/user');
+
+const registrationApi =  Vue.resource('/checkIn');
 
 const userApi =  Vue.resource('/user{/id}');
 
@@ -226,7 +225,7 @@ Vue.component('user', {
         save: function() {
             if(this.$refs.form.validate()) {
                 if(this.id) {
-                    var userToDB = {id: this.id, login: this.login, password: this.password, creationDate: this.creationDate,
+                    var userToDB = {id: this.id, login: this.login, password: this.password,
                         firstName: this.firstName, lastName: this.lastName, roles: this.roles, state: this.state};
                     userApi.update({id: this.id}, userToDB).then(result=> {
                         router.go(-1);
@@ -653,23 +652,18 @@ Vue.component('places-list', {
     },
 
     mounted: function() {
-        this.getPlaces();
+        placeApi.get().then(result=> {
+            result.json().then(data => {
+                this.places = data;
+            })
+        }, response => {
+            console.log(response);
+        })
     },
 
     methods: {
-        getPlaces: function() {
-            placeApi.get().then(result=> {
-                result.json().then(data => {
-                    this.places = data;
-                })
-            }, response => {
-                console.log(response);
-            })
-        },
-
         editItem: function(item){
-            placeId = item.id,
-            router.push({ path: `/place/${placeId}` })
+            router.push({ path: `/place/${item.id}` })
         },
 
         deleteItem: function(item){
@@ -740,79 +734,78 @@ Vue.component('show', {
 
     data: function() {
         return {
-            show: null,
-            switchShow: false,
-            valid: true,
             id: '',
             name: '',
+            date: '',
+            time: '',
+            place: Object,
+            places: [],
             nameRules: [
                 v => !!v || 'Name is required',
                 v => (v && v.length <= 20) || 'Name must be less than 20 characters',
             ],
-            place: Object,
-            placeName: '',
             placeRules: [
                 v => !!v || 'Name is required' ,
             ],
-            places: [],
-            switchShowRules: [
-                v => !!v || 'You must agree to continue!',
-            ],
-            date: '',
-            time: '',
-            dateTime: '',
             menu: false,
             menu2: false,
             readonly: false,
+            switchShow: false,
+            switchShowRules: [
+                v => !!v || 'You must agree to continue!',
+            ],
+            valid: true,
         }
     },
 
     mounted: function() {
         showId = this.$route.params.id;
-        if(showId != 'newShow') {
-            showApi.get({id: showId}).then(result=> {
-                result.json().then(data => {
-                    this.show = data;
-                })
-            }, response => {
-                console.log(response);
-            })
-        }
         placeApi.get().then(result=> {
             result.json().then(data => {
                 this.places = data;
             })
+            if(showId != 'newShow') {
+                showApi.get({id: showId}).then(result=> {
+                    result.json().then(data => {
+                        this.id = data.id;
+                        this.name = data.name;
+                        this.date = data.dateTime.substr(0,10);
+                        this.time = data.dateTime.substr(11,16);
+                        this.place = this.getPlaceFromArrPlaces(data.locationId);
+                    })
+                }, response => {
+                    console.log(response);
+                })
+            }
         }, response => {
             console.log(response);
         })
     },
 
-    watch: {
-        show: function(newVal, oldVal) {
-            this.id = newVal.id;
-            this.name = newVal.name;
-            this.dateTime = newVal.dateTime;
-            this.date = newVal.dateTime.substr(0,10);
-            this.time = newVal.dateTime.substr(11,16);
-            this.place = newVal.location;
-        }
-    },
-
     methods: {
+        getPlaceFromArrPlaces: function(locationId) {
+            var place;
+            this.places.forEach(function(item, i, arr) {
+                if(item.id == locationId){
+                    place = item;
+                }
+            });
+            return place;
+        },
+
         save: function() {
-            this.dateTime = this.date + ' ' + this.time;
             if(this.$refs.form.validate()) {
                 if(this.id) {
-                    var showToDB = {id: this.id, name: this.name, dateTime: this.dateTime,
-                        location: this.place};
+                    var showToDB = {id: this.id, name: this.name,
+                        dateTime: this.date + ' ' + this.time, locationId: this.place.id};
                     showApi.update({id: this.id}, showToDB).then(result => {
                         router.go(-1);
                     }, response => {
                         console.log(response);
                     })
                 } else {
-                    var showToDB = {name: this.name, dateTime: this.dateTime,
-                        location: this.place};
+                    var showToDB = {name: this.name, dateTime: this.date + ' ' + this.time,
+                        locationId: this.place.id};
                     showApi.save(showToDB).then(result => {
                         router.go(-1);
                     }, response => {
@@ -821,12 +814,14 @@ Vue.component('show', {
                 }
             }
         },
+
         clearForm: function() {
             this.name = '';
             this.date = '';
             this.time = '';
             this.place = null;
         },
+
         backSpace: function() {
             router.go(-1);
         }
@@ -955,6 +950,7 @@ Vue.component('shows-list', {
             if (isAdmin()) {
                 return {
                     shows: [],
+                    query: this.$route.query.idPlace,
                     idPlace: '',
                     idPlaceFromDB: '',
                     search: '',
@@ -975,6 +971,7 @@ Vue.component('shows-list', {
             } else {
                 return {
                     shows: [],
+                    query: this.$route.query.idPlace,
                     idPlace: '',
                     idPlaceFromDB: '',
                     search: '',
@@ -995,12 +992,17 @@ Vue.component('shows-list', {
         },
 
     mounted: function() {
-        this.getShows()
+        this.getEvents();
     },
 
+    watch: {
+        $route(to, from) {
+            this.getEvents();
+        }
+    },
 
     methods: {
-        getShows: function() {
+        getEvents: function() {
             this.$http.get('/event', {params: {locationId: this.$route.query.idPlace}}).then(result=> {
                 result.json().then(data => {
                     this.shows = data;
@@ -1078,32 +1080,59 @@ Vue.component('shows-list', {
         </v-card> `
 });
 
-Vue.component('card-list', {
+Vue.component('cards-list', {
 
     data: function() {
         return {
-            user: {
-                id: frontEndData.profile.id
-            },
+            nRow: Number,
+            kCol: Number,
+            placeId: Number,
+            showId: Number,
+            authUserId: Number,
             cards: [],
             cardsToBuy: [],
-            place: Object,
-            show: Object,
-            nRow: '',
-            kCol: '',
-            width: 1000,
-            height: 80,
             defaultColor: 'blue lighten-5',
             colorScene: 'green',
             disabledCard: false,
             visibleBtnBuyTicket: false,
             dialogOk: false,
-            dialogError: false
+            dialogError: false,
+            width: 1000,
+            height: 80,
         }
     },
 
     mounted: function() {
-        this.getCards()
+        this.$http.get('/ticket', {params: {eventId: this.$route.query.idShow} }).then(resultTickets => {
+            resultTickets.json().then(dataTickets => {
+                this.cards = dataTickets;
+            })
+        }, responseTickets => {
+            console.log(responseTickets);
+        });
+        showApi.get({id: this.$route.query.idShow}).then(resultShow => {
+            resultShow.json().then(dataShow => {
+                this.showId = dataShow.id;
+                this.placeId = dataShow.locationId;
+                placeApi.get({id: this.placeId}).then(resultPlace => {
+                    resultPlace.json().then(dataPlace => {
+                        this.nRow = dataPlace.numberOfRow;
+                        this.kCol = dataPlace.numberOfPlace;
+                    })
+                },responsePlace => {
+                    console.log(responsePlace);
+                })
+            })
+        }, responseShow => {
+           console.log(responseShow);
+        });
+        authUserApi.get().then(resultAuthUser => {
+            resultAuthUser.json().then(dataAuthUser => {
+                this.authUserId = dataAuthUser.id;
+            })
+        },responseAuthUser => {
+            console.log(responseAuthUser);
+        })
     },
 
     watch: {
@@ -1113,26 +1142,6 @@ Vue.component('card-list', {
     },
 
     methods: {
-        getCards: function() {
-            this.$http.get('/ticket', {params: {eventId: this.$route.query.idShow} }).then(resultTickets=> {
-                resultTickets.json().then(dataTickets => {
-                    this.cards = dataTickets;
-                    showApi.get({id: this.$route.query.idShow}).then(resultShow=> {
-                        resultShow.json().then(dataShow => {
-                            this.show = dataShow;
-                            this.place = this.show.location;
-                            this.nRow = this.show.location.numberOfRow;
-                            this.kCol = this.show.location.numberOfPlace;
-                        })
-                    }, responseShow => {
-                       console.log(responseShow);
-                    })
-                })
-            }, responseTickets => {
-                console.log(responseTickets);
-            })
-        },
-
         buyCards: function() {
             cardApi.save(this.cardsToBuy).then(result => {
                 this.dialogOk = true;
@@ -1229,7 +1238,7 @@ Vue.component('card-list', {
                         Back
                     </v-btn>
                 </v-navigation-drawer>
-                <v-content class="pt-2 pb-4" style="margin-left: 256px" >
+                <v-main class="pt-2 pb-4" style="margin-left: 256px" >
                     <v-row>
                         <v-sheet
                             class="pa-md-4 mb-4 mx-lg-auto"
@@ -1249,37 +1258,36 @@ Vue.component('card-list', {
                         <cardInCardList
                             v-for="column in kCol" :key="column"
                             :column="column" :row="row"
-                            :place="place" :show="show"
+                            :placeId="placeId" :showId="showId" :authUserId="authUserId"
                             :cards="cards" :cardsToBuy="cardsToBuy"
-                            :user="user"
                             >
                         </cardInCardList>
                     </v-row>
-                </v-content>
+                </v-main>
             </v-card>
         </div> `
 });
 
 Vue.component('cardInCardList', {
     props: {
-        place: Object,
-        show: Object,
+        placeId: Number,
+        showId: Number,
+        authUserId: Number,
         column: Number,
         row: Number,
         cards: Array,
         cardsToBuy: Array,
-        user: Object
     },
 
     data: function() {
         return {
             card: {
-                event: this.show ,
-                location: this.place ,
+                eventId: this.showId ,
+                locationId: this.placeId ,
+                userId: Number ,
                 place: this.column ,
                 row: this.row ,
-                ticketStatus: 'NOT_PURCHASED',
-                user: this.user
+                ticketStatus: 'NOT_PURCHASED'
             },
             colorFontIcon: '#F4FF81',
             disabledIcon: false
@@ -1306,6 +1314,7 @@ Vue.component('cardInCardList', {
 
     methods: {
         getCard: function() {
+            this.card.userId = this.authUserId;
             this.card.ticketStatus = 'PURCHASED';
             for (var i=0; i<this.cardsToBuy.length; i++) {
                 if (this.cardsToBuy[i].place == this.card.place
@@ -1334,35 +1343,59 @@ Vue.component('cardInCardList', {
 Vue.component('profile', {
     data: function() {
         return {
-            user: {
-                id: frontEndData.profile.id,
-                login: frontEndData.profile.username,
-                firstName: frontEndData.profile.firstName,
-                lastName: frontEndData.profile.lastName
-            },
+            user: Object,
             cards: Array,
+            shows: Array,
+            places: Array,
             cardWidth: 400
         }
     },
 
     mounted: function() {
-        this.getTickets();
+        this.$http.get('/auth/user').then(resultAuthUser => {
+            resultAuthUser.json().then(dataAuthUser => {
+                this.user = dataAuthUser;
+                this.$http.get('/ticket', {params: {userId: this.user.id} }).then(resultTickets => {
+                    resultTickets.json().then(dataTickets => {
+                        this.cards = dataTickets;
+                    })
+                }, responseTickets => {
+                    console.log(responseTickets);
+                })
+            })
+        }, responseAuthUser => {
+            console.log(responseAuthUser);
+        });
+        showApi.get().then(result=> {
+            result.json().then(data => {
+                this.shows = data;
+            })
+        }, response => {
+            console.log(response);
+        });
+        placeApi.get().then(result=> {
+            result.json().then(data => {
+                this.places = data;
+            })
+        }, response => {
+            console.log(response);
+        })
     },
 
     methods: {
-        getTickets: function() {
-            this.$http.get('/ticket', {params: {userId: this.user.id} }).then(resultTickets=> {
-                resultTickets.json().then(dataTickets => {
-                    this.cards = dataTickets;
-                })
-            }, responseTickets => {
-                console.log(responseTickets);
-            })
-        },
-
         turnBack: function() {
             router.go(-1);
         }
+    },
+
+    filters: {
+        getEntityName: function(idEntity, arrayEntity) {
+            for(var i=0; i<arrayEntity.length; i++) {
+                if(idEntity == arrayEntity[i].id) {
+                    return arrayEntity[i].name;
+                }
+            }
+        },
     },
 
     template:
@@ -1407,13 +1440,13 @@ Vue.component('profile', {
                                     width="300"
                                 >
                                     <v-text-field
-                                        :value="card.location.name"
+                                        :value="card.locationId | getEntityName(places)"
                                         label="Location"
                                         outlined
                                         readonly
                                     ></v-text-field>
                                     <v-text-field
-                                        :value="card.event.name"
+                                        :value="card.eventId | getEntityName(shows)"
                                         label="Event"
                                         outlined
                                         readonly
@@ -1490,7 +1523,7 @@ const Shows = {
 
 const Cards = {
     template:
-        ` <card-list></card-list> `
+        ` <cards-list></cards-list> `
 }
 
 const Profile = {
@@ -1507,10 +1540,12 @@ const router = new VueRouter({
         { path: '/place/:id', component: Place },
         { path: '/place', component: Places },
         { path: '/show/:id', component: Show },
-        { path: '/show', component: Shows, props: (route) => ({query:route.query}) },
-//        { path: '/card/:id', component: Card },
-        { path: '/card', component: Cards, props: (route) => ({query:route.query}) },
-        { path: '/profile', component: Profile, props: {profile: frontEndData.profile}},
+//        { path: '/show', component: Shows, props: (route) => ({query:route.query}) },
+        { path: '/show', component: Shows },
+//        { path: '/card', component: Cards, props: (route) => ({query:route.query}) },
+        { path: '/card', component: Cards },
+//        { path: '/profile', component: Profile, props: {profile: frontEndData.profile}},
+        { path: '/profile', component: Profile },
         { path: '/', component: Home },
         { path: '*', component: Home },
     ]

@@ -1,7 +1,6 @@
 package com.kalachinski.tickets.domains;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -34,7 +33,7 @@ public class Event implements Serializable {
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     @Column(name = "ticket.id")
-    @JsonIgnore
+//    @JsonIgnore
     private List<Ticket> tickets;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -2,7 +2,7 @@ package com.kalachinski.tickets.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kalachinski.tickets.domains.Location;
+import com.kalachinski.tickets.dto.LocationDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +51,7 @@ class LocationRestControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("NotFound exception by Get one Location")
+    @DisplayName("NotFound exception from Get one Location")
     void getOneLocationWithNotFoundException() throws Exception{
         mockMvc.perform(get("/location/2"))
                 .andExpect(status().isNotFound());
@@ -76,7 +76,7 @@ class LocationRestControllerIntegrationTest {
         mockMvc.perform(post("/location")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectAsJson(Location.builder()
+                .content(objectToJson(LocationDto.builder()
                         .name("Dynamo Stadium")
                         .numberOfRow(100)
                         .numberOfPlace(100)
@@ -87,12 +87,12 @@ class LocationRestControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("BadRequest exception by Save Location")
+    @DisplayName("BadRequest exception from Save Location")
     void saveLocationWithBadRequestException() throws Exception {
         mockMvc.perform(post("/location")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectAsJson(new Location())))
+                .content(objectToJson(new LocationDto())))
                 .andExpect(status().isBadRequest());
     }
 
@@ -102,7 +102,7 @@ class LocationRestControllerIntegrationTest {
         mockMvc.perform(put("/location/1")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectAsJson(Location.builder()
+                .content(objectToJson(LocationDto.builder()
                         .id(1L)
                         .name("Minsk-Arena")
                         .numberOfRow(100)
@@ -112,22 +112,27 @@ class LocationRestControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("NotFound exception by Update Location")
+    @DisplayName("NotFound exception from Update Location")
     void updateLocationWithNotFoundException() throws Exception {
         mockMvc.perform(put("/location/2")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectAsJson(new Location())))
+                .content(objectToJson(LocationDto.builder()
+                        .id(2L)
+                        .name("Dynamo Stadium")
+                        .numberOfRow(100)
+                        .numberOfPlace(100)
+                        .build())))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @DisplayName("BadRequest exception by Update Location")
+    @DisplayName("BadRequest exception from Update Location")
     void updateLocationWithBadRequestException() throws Exception {
         mockMvc.perform(put("/location/1")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectAsJson(new Location())))
+                .content(objectToJson(new LocationDto())))
                 .andExpect(status().isBadRequest());
     }
 
@@ -140,7 +145,7 @@ class LocationRestControllerIntegrationTest {
                 .andExpect(status().isNoContent());
     }
 
-    private byte[] objectAsJson(Object object) throws JsonProcessingException {
+    private byte[] objectToJson(Object object) throws JsonProcessingException {
         return new ObjectMapper().findAndRegisterModules().writeValueAsBytes(object);
     }
 }

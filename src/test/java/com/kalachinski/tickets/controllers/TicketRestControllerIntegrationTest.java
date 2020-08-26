@@ -2,10 +2,9 @@ package com.kalachinski.tickets.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kalachinski.tickets.domains.Event;
-import com.kalachinski.tickets.domains.Location;
 import com.kalachinski.tickets.domains.Ticket;
 import com.kalachinski.tickets.domains.TicketStatus;
+import com.kalachinski.tickets.dto.TicketDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +16,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
@@ -52,8 +51,8 @@ class TicketRestControllerIntegrationTest {
                         jsonPath("$.[0].row").value(1L),
                         jsonPath("$.[0].place").value(1),
                         jsonPath("$.[0].ticketStatus").value("PURCHASED"),
-                        jsonPath("$.[0].event.id").value(1),
-                        jsonPath("$.[0].location.id").value(1)
+                        jsonPath("$.[0].eventId").value(1),
+                        jsonPath("$.[0].locationId").value(1)
                 ));
     }
 
@@ -67,13 +66,13 @@ class TicketRestControllerIntegrationTest {
                         jsonPath("$.row").value(1L),
                         jsonPath("$.place").value(1),
                         jsonPath("$.ticketStatus").value("PURCHASED"),
-                        jsonPath("$.event.id").value(1),
-                        jsonPath("$.location.id").value(1)
+                        jsonPath("$.eventId").value(1),
+                        jsonPath("$.locationId").value(1)
                 ));
     }
 
     @Test
-    @DisplayName("NotFound by Get one Ticket")
+    @DisplayName("NotFoundException from Get one Ticket")
     void getOneTicketWithNotFountException() throws Exception {
         mockMvc.perform(get("/ticket/2"))
                 .andExpect(status().isNotFound());
@@ -90,8 +89,8 @@ class TicketRestControllerIntegrationTest {
                         jsonPath("$.[0].row").value(1L),
                         jsonPath("$.[0].place").value(1),
                         jsonPath("$.[0].ticketStatus").value("PURCHASED"),
-                        jsonPath("$.[0].event.id").value(1),
-                        jsonPath("$.[0].location.id").value(1)
+                        jsonPath("$.[0].eventId").value(1),
+                        jsonPath("$.[0].locationId").value(1)
                 ));
         mockMvc.perform(get("/ticket/?eventId=2"))
                 .andExpect(matchAll(
@@ -106,48 +105,38 @@ class TicketRestControllerIntegrationTest {
         mockMvc.perform(get("/ticket/?userId=1"))
                 .andExpect(matchAll(
                         status().isOk(),
-                        jsonPath("$", hasSize(0))
+                        jsonPath("$", hasSize(1))
                 ));
     }
 
     @Test
     @DisplayName("Save group Tickets")
     void saveGroupTickets() throws Exception {
-        List<Ticket> ticketList = new ArrayList<>();
-        ticketList.add(Ticket.builder()
-                .place(1)
-                .row(1)
-                .ticketStatus(TicketStatus.PURCHASED)
-                .event(Event.builder()
-                        .id(1L)
-                        .build())
-                .location(Location.builder()
-                        .id(1L)
-                        .build())
-                .build());
         mockMvc.perform(post("/ticket")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectToJson(ticketList)))
+                .content(objectToJson(
+                        Stream.of(TicketDto.builder()
+                                .place(1)
+                                .row(1)
+                                .ticketStatus(TicketStatus.PURCHASED)
+                                .eventId(1L)
+                                .locationId(1L)
+                                .userId(1L)
+                                .build())
+                                .collect(Collectors.toList()))))
                 .andExpect(status().isCreated());
     }
 
     @Test
-    @DisplayName("BadRequest by Save group Tickets")
+    @DisplayName("BadRequest from Save group Tickets")
     void saveGroupTicketsWithBadRequestException() throws Exception {
-        List<Ticket> ticketList = new ArrayList<>();
-        ticketList.add(Ticket.builder()
-                .place(1)
-                .row(1)
-                .ticketStatus(TicketStatus.PURCHASED)
-                .location(Location.builder()
-                        .id(1L)
-                        .build())
-                .build());
         mockMvc.perform(post("/ticket")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectToJson(ticketList)))
+                .content(objectToJson(
+                        Stream.of(new TicketDto())
+                                .collect(Collectors.toList()))))
                 .andExpect(status().isBadRequest());
 
     }
@@ -158,34 +147,53 @@ class TicketRestControllerIntegrationTest {
         mockMvc.perform(put("/ticket/1")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectToJson(Ticket.builder()
+                .content(objectToJson(TicketDto.builder()
+                        .id(1L)
+                        .place(1)
+                        .row(1)
+                        .locationId(1L)
+                        .eventId(1L)
+                        .userId(1L)
+                        .ticketStatus(TicketStatus.PURCHASED)
+                        .build())
+                ))
+                .andExpect(status().isNoContent());
+        mockMvc.perform(put("/ticket/1")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectToJson(TicketDto.builder()
                         .id(2L)
                         .place(1)
                         .row(1)
-                        .location(Location.builder()
-                                .id(1L)
-                                .build())
+                        .locationId(1L)
+                        .eventId(1L)
+                        .userId(1L)
                         .ticketStatus(TicketStatus.PURCHASED)
-                        .event(Event.builder()
-                                .id(1L)
-                                .build())
                         .build())
                 ))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    @DisplayName("NotFound exception by Update Ticket")
+    @DisplayName("NotFoundException from Update Ticket")
     void updateTicketWithNotFoundException() throws Exception {
         mockMvc.perform(put("/ticket/2")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectToJson(new Ticket())))
+                .content(objectToJson(TicketDto.builder()
+                        .id(2L)
+                        .place(1)
+                        .row(1)
+                        .locationId(1L)
+                        .eventId(1L)
+                        .userId(1L)
+                        .ticketStatus(TicketStatus.PURCHASED)
+                        .build())))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @DisplayName("BadRequest exception by Update Ticket")
+    @DisplayName("BadRequest exception from Update Ticket")
     void updateTicketWithBadRequestException() throws Exception {
         mockMvc.perform(put("/ticket/1")
                 .accept(MediaType.APPLICATION_JSON)

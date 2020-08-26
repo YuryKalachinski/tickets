@@ -10,5 +10,7 @@ import java.util.List;
 @Repository
 public interface EventRepository extends CrudRepository<Event, Long> {
 
+    List<Event> findAll();
+
     List<Event> findByLocation(Location location);
 }

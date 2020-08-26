@@ -2,8 +2,7 @@ package com.kalachinski.tickets.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kalachinski.tickets.domains.Event;
-import com.kalachinski.tickets.domains.Location;
+import com.kalachinski.tickets.dto.EventDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,12 +49,12 @@ class EventRestControllerIntegrationTest {
                         jsonPath("$.id").value(1),
                         jsonPath("$.name").value("Bi-2"),
                         jsonPath("$.dateTime").value("2020-06-10 18:00"),
-                        jsonPath("$.location.id").value(1)
+                        jsonPath("$.locationId").value(1)
                 ));
     }
 
     @Test
-    @DisplayName("NotFound by Get one Event")
+    @DisplayName("NotFound from Get one Event")
     void getOneEventWithNotFoundException() throws Exception {
         mockMvc.perform(get("/event/2"))
                 .andExpect(status().isNotFound());
@@ -71,7 +70,7 @@ class EventRestControllerIntegrationTest {
                         jsonPath("$.[0].id").value(1),
                         jsonPath("$.[0].name").value("Bi-2"),
                         jsonPath("$.[0].dateTime").value("2020-06-10 18:00"),
-                        jsonPath("$.[0].location.id").value(1)));
+                        jsonPath("$.[0].locationId").value(1)));
         mockMvc.perform(get("/event/?locationId=2"))
                 .andExpect(matchAll(
                         status().isOk(),
@@ -89,7 +88,7 @@ class EventRestControllerIntegrationTest {
                         jsonPath("$.[0].id").value(1),
                         jsonPath("$.[0].name").value("Bi-2"),
                         jsonPath("$.[0].dateTime").value("2020-06-10 18:00"),
-                        jsonPath("$.[0].location.id").value(1)
+                        jsonPath("$.[0].locationId").value(1)
                 ));
     }
 
@@ -99,11 +98,10 @@ class EventRestControllerIntegrationTest {
         mockMvc.perform(post("/event")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectToJson(Event.builder()
+                .content(objectToJson(EventDto.builder()
                         .name("Nizkiz")
                         .dateTime(LocalDateTime.parse("2020-12-20T18:00:00"))
-                        .location(Location.builder()
-                                .id(1L).build())
+                        .locationId(1L)
                         .build())))
                 .andExpect(matchAll(
                         header().string("Location", "http://" + hostName + "/event/2"),
@@ -112,15 +110,12 @@ class EventRestControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("BadRequest by Save Event")
+    @DisplayName("BadRequest from Save Event")
     void saveEventWithBadRequestException() throws Exception {
         mockMvc.perform(post("/event")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectToJson(Event.builder()
-                        .name("Ariya")
-                        .dateTime(LocalDateTime.now())
-                        .build())))
+                .content(objectToJson(new EventDto())))
                 .andExpect(status().isBadRequest());
     }
 
@@ -130,41 +125,44 @@ class EventRestControllerIntegrationTest {
         mockMvc.perform(put("/event/1")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectToJson(Event.builder()
+                .content(objectToJson(EventDto.builder()
                         .id(1L)
                         .name("Na-na")
                         .dateTime(LocalDateTime.now())
-                        .location(Location.builder()
-                                .id(1L)
-                                .build())
+                        .locationId(1L)
                         .build())
                 ))
                 .andExpect(status().isNoContent());
-
     }
 
     @Test
-    @DisplayName("NotFound exception by Update Event")
+    @DisplayName("NotFound exception from Update Event")
     void updateEventWithNotFoundException() throws Exception {
         mockMvc.perform(put("/event/2")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectToJson(new Event())))
+                .content(objectToJson(EventDto.builder()
+                        .id(2L)
+                        .name("Tutsi")
+                        .dateTime(LocalDateTime.now())
+                        .locationId(1L)
+                        .build())
+                ))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @DisplayName("BadRequest exception by Update Event")
+    @DisplayName("BadRequest exception from Update Event")
     void updateEventWithBadRequestException() throws Exception {
         mockMvc.perform(put("/event/1")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectToJson(new Event())))
+                .content(objectToJson(new EventDto())))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("Delete event")
+    @DisplayName("Delete Event")
     void deleteEvent() throws Exception {
         mockMvc.perform(delete("/event/1"))
                 .andExpect(status().isNoContent());
