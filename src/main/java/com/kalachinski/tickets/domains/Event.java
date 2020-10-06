@@ -31,12 +31,27 @@ public class Event implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime dateTime;
 
+//    @Column(name = "createdDateTime")
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+//    private LocalDateTime createdDateTime;
+
+//    @Column(name = "updatedDateTime")
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+//    private LocalDateTime updatedDateTime;
+
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "userThatUpdated", referencedColumnName = "id")
+//    private User userThatUpdated;
+
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "userThatCreated", referencedColumnName = "id")
+//    private User userThatCreated;
+
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
-    @Column(name = "ticket.id")
-//    @JsonIgnore
+    @Column(name = "ticketId")
     private List<Ticket> tickets;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location.id")
+    @JoinColumn(name = "locationId", referencedColumnName = "id")
     private Location location;
 }

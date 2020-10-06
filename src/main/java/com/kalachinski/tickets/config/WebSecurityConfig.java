@@ -37,7 +37,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .anyRequest().authenticated()
                 .and()
                     .formLogin()
-//                    .failureUrl("/login")
                     .permitAll()
                 .and()
                     .logout()

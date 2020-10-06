@@ -1,8 +1,11 @@
 CREATE TABLE event (
     id int8 NOT NULL,
-    date_time TIMESTAMP,
     name VARCHAR(255),
+    date_time TIMESTAMP,
+    created_date_time TIMESTAMP,
+    updated_date_time TIMESTAMP,
     location_id int8,
+    user_id int8,
     PRIMARY KEY (id)
 );
 
